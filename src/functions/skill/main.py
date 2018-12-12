@@ -12,6 +12,7 @@ import utils
 # TODO: add cards?
 # TODO: add APL
 # TODO: navigate home intent?
+# TODO: support "make it harder/easier" and "change operation" intents
 
 sb = StandardSkillBuilder(table_name=os.environ['SKILL_TABLE_NAME'])
 sb.skill_id = 'amzn1.ask.skill.d455ad8c-dde9-4ee8-a492-4e3985b5ff79'
