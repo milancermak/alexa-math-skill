@@ -4,7 +4,7 @@
 
 [MASTER]
 # https://stackoverflow.com/a/3065082/1370986
-init-hook='import os, sys; sys.path.append("./src/functions/skill");'
+init-hook='import os, sys; sys.path.append(os.path.join(os.getcwd(), 'src', 'functions', 'skill'))'
 
 ignore=lib,fastexport
 

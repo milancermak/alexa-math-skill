@@ -3,7 +3,7 @@ import os
 from ask_sdk.standard import StandardSkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
 
-from core import log_invocation
+from core import log_invocation # pylint: disable=no-name-in-module
 import content
 import models
 import utils
