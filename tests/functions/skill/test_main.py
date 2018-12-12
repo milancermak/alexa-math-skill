@@ -1,13 +1,13 @@
 import pytest
 
 from src.functions.skill import main
+from tests.test_utils import assert_keypath
 from .fixtures import ( # pylint: disable=unused-import
     dynamodb_client, launch_request, session_ended_request,
     did_select_operation_intent, did_select_difficulty_intent,
     did_answer_intent_correct, did_answer_intent_wrong,
     build_intent_event
 )
-from tests.test_utils import assert_keypath
 
 
 @pytest.fixture(autouse=True)
