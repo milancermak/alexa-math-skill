@@ -20,7 +20,7 @@ pip install --requirement ${COREDIR}/requirements.txt \
     --cache-dir $PIP_CACHE
 
 # prepare every function for packaging
-for FUNCDIR in ${SRCDIR}/functions/*; do
+for FUNCDIR in ${SRCDIR}/functions/*/; do
     echo "Preparing package for `basename ${FUNCDIR}`"
 
     # copy over core dependencies
