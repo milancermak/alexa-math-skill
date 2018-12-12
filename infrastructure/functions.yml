@@ -1,0 +1,65 @@
+---
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Service:
+    Description: Name of the service, propagated all over the place. Choose wisely.
+    Type: String
+    AllowedPattern: '^[a-z]+(-[a-z]+)*$'
+    Default: exif-reader
+    ConstraintDescription: must contain only lowercase letters and hyphens
+
+  Stage:
+    Description: Deployment phase
+    Type: String
+    AllowedValues:
+      - beta
+      - prod
+
+Globals:
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst#supported-resources
+  Function:
+    Environment:
+      Variables:
+        PYTHONPATH: '/var/runtime:/var/task/lib'
+        REGION: !Ref AWS::Region
+        SERVICE: !Ref Service
+        STAGE: !Ref Stage
+    Handler: main.handler
+    MemorySize: 128
+    Runtime: python3.6
+    Timeout: 30
+
+Resources:
+  SkillTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      # no ProvisionedThroughpout means
+      # BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+
+  SkillFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Alexa math practice skill
+      CodeUri: '../src/functions/skill'
+      Environment:
+        Variables:
+          SKILL_TABLE_NAME: !Ref SkillTable
+      Events:
+        AlexaSkillInvocation:
+          Type: AlexaSkill
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SkillTable
+
+Outputs:
+  SkillFunctionArn:
+    Description: ARN of the Alexa skill Lambda function
+    Value: !GetAtt SkillFunction.Arn
