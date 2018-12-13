@@ -47,11 +47,11 @@ def session_summary(_locale, session_data):
 
 def prompt_for_difficulty(_locale):
     # should work as a reprompt
-    return 'Choose your difficulty level. Easy, normal or hard?'
+    return 'Choose your difficulty level. Easy, normal, or hard?'
 
 def prompt_for_operation(_locale):
     # should work as a reprompt
-    return 'What would you like to train? Addition, subtraction, multiplication or division?'
+    return 'What would you like to train? Addition, subtraction, multiplication, or division?'
 
 # training
 
