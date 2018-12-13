@@ -43,8 +43,8 @@
         "intent": {
             "name": "DidAnswer",
             "slots": {
-                "AMAZON.NUMBER": {
-                    "name": "AMAZON.NUMBER",
+                "answer": {
+                    "name": "answer",
                     "value": "5"
                 }
             }

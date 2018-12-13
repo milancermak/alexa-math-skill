@@ -116,8 +116,7 @@ def did_answer_handler(handler_input):
     locale = handler_input.request_envelope.request.locale
     slots = handler_input.request_envelope.request.intent.slots
 
-    number = slots['AMAZON.NUMBER'].value
-    answer = int(number)
+    answer = int(slots['answer'].value)
     is_correct = answer == usage.session_data.correct_result
 
     if is_correct:
