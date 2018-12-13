@@ -70,7 +70,7 @@ def generate_operands(operation, difficulty):
     op1 = random.randint(0, o_max)
     op2 = random.randint(0, o_max)
 
-    if operation in [Operation.SUB, Operation.DIV] and op1 > op2:
+    if operation in [Operation.SUB, Operation.DIV] and op1 < op2:
         # prevent "unwanted" results
         op1, op2 = op2, op1
 
