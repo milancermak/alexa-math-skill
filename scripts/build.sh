@@ -19,7 +19,6 @@ pip install --requirement ${COREDIR}/requirements.txt \
     --target ${COREDIR}/lib \
     --cache-dir $PIP_CACHE
 
-set -o xtrace
 # prepare every function for packaging
 for FUNCDIR in ${SRCDIR}/functions/*/; do
     echo "Preparing package for `basename ${FUNCDIR}`"
@@ -27,6 +26,7 @@ for FUNCDIR in ${SRCDIR}/functions/*/; do
     # copy over core dependencies
     rm -f ${FUNCDIR}/core
     cp -r ${COREDIR} ${FUNCDIR}
+    mv ${FUNCDIR}/core/lib ${FUNCDIR}
 
     # install function's dependencies (alongside core's)
     if [[ -e ${FUNCDIR}/requirements.txt ]]; then
