@@ -8,7 +8,7 @@
         },
         "attributes": {
             "session_data": {
-                "operation": "addition"
+                "operation": "add"
             }
         },
         "user": {

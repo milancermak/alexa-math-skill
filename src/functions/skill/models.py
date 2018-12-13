@@ -61,7 +61,7 @@ class SessionData:
 
     operation: Optional[Operation] = attr.ib(
         default=None,
-        converter=lambda a: Operation.from_word(a) if a else None)
+        converter=lambda a: Operation(a) if a else None)
     difficulty: Optional[int] = attr.ib(default=None)
 
     correct_result: int = attr.ib(default=0)

@@ -8,7 +8,7 @@
         },
         "attributes": {
             "session_data": {
-                "operation": "addition",
+                "operation": "add",
                 "difficulty": 2,
                 "correct_result": 5,
                 "questions_count": 3,

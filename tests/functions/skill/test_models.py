@@ -44,7 +44,7 @@ class TestOperation:
 class TestSessionData:
 
     def test_creation_from_partial_attributes(self):
-        attributes = {'operation': 'addition',
+        attributes = {'operation': 'add',
                       'difficulty': 3}
         session_data = models.SessionData.from_attributes(attributes)
 
@@ -56,7 +56,7 @@ class TestSessionData:
         assert session_data.streak_count == 0
 
     def test_creation_from_all_attributes(self):
-        attributes = {'operation': 'division',
+        attributes = {'operation': 'div',
                       'difficulty': 2,
                       'correct_result': 8,
                       'questions_count': 20,
@@ -85,7 +85,7 @@ class TestSkillUsage:
 
     def test_creation_from_attributes(self):
         attributes = {'previous_session_end': '2018-10-11T12:00:00Z',
-                      'session_data': {'operation': 'multiplication',
+                      'session_data': {'operation': 'mul',
                                        'difficulty': 1},
                       'launch_count': 4}
         end_dt = datetime.datetime(2018, 10, 11, 12, 0, 0, tzinfo=tzutc())
@@ -108,11 +108,11 @@ class TestSkillUsage:
         (None, True),
         ({'session_data': {},
           'previous_session_end': '2010-01-01T02:00:00Z'}, True),
-        ({'session_data': {'operation': 'subtraction'},
+        ({'session_data': {'operation': 'sub'},
           'previous_session_end':
           datetime.datetime.now(tz=tzutc()).isoformat(timespec='seconds')},
          False),
-        ({'session_data': {'operation': 'subtraction'},
+        ({'session_data': {'operation': 'div'},
           'previous_session_end':
           (datetime.datetime.now(tz=tzutc()) - datetime.timedelta(days=1))\
           .isoformat(timespec='seconds')},
