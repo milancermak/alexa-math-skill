@@ -6,9 +6,7 @@ import sys
 import structlog
 
 
-# TODO: not sure how this behaves in Lambda
 logging.basicConfig(format="%(message)s",
-                    stream=sys.stdout,
                     level=logging.INFO)
 
 
@@ -22,6 +20,13 @@ def add_service_context(_logger, _method, event_dict):
     event_dict['stage'] = os.environ.get('STAGE', 'dev')
     return event_dict
 
+# I couldn't get structlog and capsys to cooperate in tests
+# hence I'm using the stdlib logger in tests so that caplog can
+# capture it and logging via printing to stdout in production
+_logger_factory = structlog.stdlib.LoggerFactory() \
+    if os.environ.get('STAGE') == 'localtest' \
+       else structlog.PrintLoggerFactory()
+
 structlog.configure_once(
     processors=[
         structlog.stdlib.add_log_level,
@@ -32,8 +37,7 @@ structlog.configure_once(
         structlog.processors.JSONRenderer()
     ],
     context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    #logger_factory=structlog.PrintLoggerFactory(),
+    logger_factory=_logger_factory,
     cache_logger_on_first_use=True
 )
 
