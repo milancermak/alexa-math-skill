@@ -65,45 +65,6 @@ def launch_request_handler(handler_input):
 def session_ended_request_handler(handler_input):
     persist_skill_data(handler_input)
 
-@intent_handler('DidAnswer')
-def did_answer_handler(handler_input):
-
-    am = handler_input.attributes_manager
-    usage = models.SkillUsage.from_attributes(am.session_attributes)
-    locale = handler_input.request_envelope.request.locale
-    slots = handler_input.request_envelope.request.intent.slots
-
-    answer = int(slots['answer'].value)
-    is_correct = answer == usage.session_data.correct_result
-
-    if is_correct:
-        usage.session_data.correct_answers_count += 1
-        usage.session_data.streak_count += 1
-
-        outcome = content.correct(locale)
-        streak_count = usage.session_data.streak_count
-        # pylint: disable=bad-continuation
-        if (streak_count == 5 or
-            (streak_count >= 10 and streak_count % 10 == 0)):
-            # on 5 in a row and every 10
-            outcome = content.streak_encouragement(locale, streak_count)
-    else:
-        usage.session_data.streak_count = 0
-
-        correct_result = usage.session_data.correct_result
-        outcome = content.incorrect(locale, correct_result)
-
-    question, result = content.exercise_question(locale,
-                                                 usage.session_data.operation,
-                                                 usage.session_data.difficulty)
-    message = utils.combine_messages(outcome, question)
-
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
-    am.session_attributes = models.asdict(usage)
-
-    return utils.build_response(handler_input, message, question)
-
 @intent_handler('DidSelectOperation')
 def did_select_operation_handler(handler_input):
     # TODO: what if I already have the difficulty level? i.e. I can directly ask a question
@@ -145,6 +106,45 @@ def did_select_difficulty_handler(handler_input):
     operation = usage.session_data.operation
     question, result = content.exercise_question(locale, operation, difficulty)
     message = utils.combine_messages(ack, start_message, question)
+
+    usage.session_data.correct_result = result
+    usage.session_data.questions_count += 1
+    am.session_attributes = models.asdict(usage)
+
+    return utils.build_response(handler_input, message, question)
+
+@intent_handler('DidAnswer')
+def did_answer_handler(handler_input):
+
+    am = handler_input.attributes_manager
+    usage = models.SkillUsage.from_attributes(am.session_attributes)
+    locale = handler_input.request_envelope.request.locale
+    slots = handler_input.request_envelope.request.intent.slots
+
+    answer = int(slots['answer'].value)
+    is_correct = answer == usage.session_data.correct_result
+
+    if is_correct:
+        usage.session_data.correct_answers_count += 1
+        usage.session_data.streak_count += 1
+
+        outcome = content.correct(locale)
+        streak_count = usage.session_data.streak_count
+        # pylint: disable=bad-continuation
+        if (streak_count == 5 or
+            (streak_count >= 10 and streak_count % 10 == 0)):
+            # on 5 in a row and every 10
+            outcome = content.streak_encouragement(locale, streak_count)
+    else:
+        usage.session_data.streak_count = 0
+
+        correct_result = usage.session_data.correct_result
+        outcome = content.incorrect(locale, correct_result)
+
+    question, result = content.exercise_question(locale,
+                                                 usage.session_data.operation,
+                                                 usage.session_data.difficulty)
+    message = utils.combine_messages(outcome, question)
 
     usage.session_data.correct_result = result
     usage.session_data.questions_count += 1
