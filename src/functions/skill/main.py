@@ -13,6 +13,10 @@ import utils
 # TODO: add APL
 # TODO: navigate home intent?
 # TODO: support "make it harder/easier" and "change operation" intents
+# TODO: 5 levels? in each level an operand's magnitue would increase
+# TODO: no streaks?
+# TODO: how to come back from HelpIntent?
+# TODO: see the No match section here: https://developer.amazon.com/blogs/alexa/post/cfbd2f5e-c72f-4b03-8040-8628bbca204c/alexa-skill-teardown-understanding-entity-resolution-with-pet-match
 
 sb = StandardSkillBuilder(table_name=os.environ['SKILL_TABLE_NAME'])
 sb.skill_id = 'amzn1.ask.skill.d455ad8c-dde9-4ee8-a492-4e3985b5ff79'
@@ -48,6 +52,7 @@ def launch_request_handler(handler_input):
     am = handler_input.attributes_manager
     usage = models.SkillUsage.from_attributes(am.persistent_attributes)
     if usage.is_new_session():
+        # TODO: add intro message on first run?
         # TODO: maybe ask if they want to continue? if so then I'd need to remember the question as well /o\
         usage.session_data = models.SessionData()
     am.session_attributes = models.asdict(usage)
@@ -59,6 +64,45 @@ def launch_request_handler(handler_input):
 @request_handler('SessionEndedRequest')
 def session_ended_request_handler(handler_input):
     persist_skill_data(handler_input)
+
+@intent_handler('DidAnswer')
+def did_answer_handler(handler_input):
+
+    am = handler_input.attributes_manager
+    usage = models.SkillUsage.from_attributes(am.session_attributes)
+    locale = handler_input.request_envelope.request.locale
+    slots = handler_input.request_envelope.request.intent.slots
+
+    answer = int(slots['answer'].value)
+    is_correct = answer == usage.session_data.correct_result
+
+    if is_correct:
+        usage.session_data.correct_answers_count += 1
+        usage.session_data.streak_count += 1
+
+        outcome = content.correct(locale)
+        streak_count = usage.session_data.streak_count
+        # pylint: disable=bad-continuation
+        if (streak_count == 5 or
+            (streak_count >= 10 and streak_count % 10 == 0)):
+            # on 5 in a row and every 10
+            outcome = content.streak_encouragement(locale, streak_count)
+    else:
+        usage.session_data.streak_count = 0
+
+        correct_result = usage.session_data.correct_result
+        outcome = content.incorrect(locale, correct_result)
+
+    question, result = content.exercise_question(locale,
+                                                 usage.session_data.operation,
+                                                 usage.session_data.difficulty)
+    message = utils.combine_messages(outcome, question)
+
+    usage.session_data.correct_result = result
+    usage.session_data.questions_count += 1
+    am.session_attributes = models.asdict(usage)
+
+    return utils.build_response(handler_input, message, question)
 
 @intent_handler('DidSelectOperation')
 def did_select_operation_handler(handler_input):
@@ -101,45 +145,6 @@ def did_select_difficulty_handler(handler_input):
     operation = usage.session_data.operation
     question, result = content.exercise_question(locale, operation, difficulty)
     message = utils.combine_messages(ack, start_message, question)
-
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
-    am.session_attributes = models.asdict(usage)
-
-    return utils.build_response(handler_input, message, question)
-
-@intent_handler('DidAnswer')
-def did_answer_handler(handler_input):
-
-    am = handler_input.attributes_manager
-    usage = models.SkillUsage.from_attributes(am.session_attributes)
-    locale = handler_input.request_envelope.request.locale
-    slots = handler_input.request_envelope.request.intent.slots
-
-    answer = int(slots['answer'].value)
-    is_correct = answer == usage.session_data.correct_result
-
-    if is_correct:
-        usage.session_data.correct_answers_count += 1
-        usage.session_data.streak_count += 1
-
-        outcome = content.correct(locale)
-        streak_count = usage.session_data.streak_count
-        # pylint: disable=bad-continuation
-        if (streak_count == 5 or
-            (streak_count >= 10 and streak_count % 10 == 0)):
-            # on 5 in a row and every 10
-            outcome = content.streak_encouragement(locale, streak_count)
-    else:
-        usage.session_data.streak_count = 0
-
-        correct_result = usage.session_data.correct_result
-        outcome = content.incorrect(locale, correct_result)
-
-    question, result = content.exercise_question(locale,
-                                                 usage.session_data.operation,
-                                                 usage.session_data.difficulty)
-    message = utils.combine_messages(outcome, question)
 
     usage.session_data.correct_result = result
     usage.session_data.questions_count += 1
