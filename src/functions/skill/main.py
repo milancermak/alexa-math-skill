@@ -16,7 +16,7 @@ import utils
 # TODO: 5 levels? in each level an operand's magnitue would increase
 # TODO: no streaks?
 # TODO: how to come back from HelpIntent?
-# TODO: see the No match section here: https://developer.amazon.com/blogs/alexa/post/cfbd2f5e-c72f-4b03-8040-8628bbca204c/alexa-skill-teardown-understanding-entity-resolution-with-pet-match
+
 
 sb = StandardSkillBuilder(table_name=os.environ['SKILL_TABLE_NAME'])
 sb.skill_id = 'amzn1.ask.skill.d455ad8c-dde9-4ee8-a492-4e3985b5ff79'
