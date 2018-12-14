@@ -35,7 +35,7 @@ def streak_encouragement(_locale, streak_count):
 
 def help_message(_locale):
     # pylint: disable=line-too-long
-    return 'This skill helps you practice your math arithmetics. Simply choose the operation you want to practice, either addition, subtraction, multiplication or division and one of the easy, normal or hard difficulty levels. Alexa will then keep on giving you math exercises until you tell her to stop. Good luck!'
+    return 'This skill helps you practice your math arithmetics. Simply choose the operation you want to practice, either addition, subtraction, multiplication or division and one of the easy, normal or hard difficulty levels. Alexa will then keep on giving you math exercises until you tell her to stop. So what would you like to train? Addition, subtraction, multiplication, or division?'
 
 def start_message(_locale):
     return 'Let\'s get started'
