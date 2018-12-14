@@ -64,9 +64,11 @@ def exercise_question(_locale, operation, difficulty):
 
 def generate_operands(operation, difficulty):
     # pylint: disable=invalid-name
-    # TODO: should the multiplication be easier? i.e. o_max a
-    #       degree or two less when multiplicating, to avoid large numbers
-    o_max = math.pow(10, difficulty)
+    op1_max, op2_max = {1: (10, 10),
+                        2: (50, 50),
+                        3: (100, 100),
+                        4: (1000, 100),
+                        5: (1000, 1000)}[difficulty]
     op1 = random.randint(0, o_max)
     op2 = random.randint(0, o_max)
 
