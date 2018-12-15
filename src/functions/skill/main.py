@@ -13,10 +13,6 @@ import utils
 # TODO: add APL
 # TODO: navigate home intent?
 # TODO: support "make it harder/easier" and "change operation" intents
-# TODO: 5 levels? in each level an operand's magnitue would increase
-# TODO: no streaks?
-# TODO: how to come back from HelpIntent?
-
 
 sb = StandardSkillBuilder(table_name=os.environ['SKILL_TABLE_NAME'])
 sb.skill_id = 'amzn1.ask.skill.d455ad8c-dde9-4ee8-a492-4e3985b5ff79'
@@ -97,14 +93,14 @@ def did_select_difficulty_handler(handler_input):
 
     spoken_difficulty = slots['difficulty'].value
     # TODO: use an enum for difficulty as well?
-    difficulty = content.difficulty_to_value(locale, spoken_difficulty)
+    difficulty = content.difficulty_to_value(spoken_difficulty, locale)
     difficulty = max(1, min(5, difficulty)) # keep it in the [1, 5] interval
     usage.session_data.difficulty = difficulty
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
     operation = usage.session_data.operation
-    question, result = content.exercise_question(locale, operation, difficulty)
+    question, result = content.exercise_question(operation, difficulty, locale)
     message = utils.combine_messages(ack, start_message, question)
 
     usage.session_data.correct_result = result
@@ -134,16 +130,16 @@ def did_answer_handler(handler_input):
         if (streak_count == 5 or
             (streak_count >= 10 and streak_count % 10 == 0)):
             # on 5 in a row and every 10
-            outcome = content.streak_encouragement(locale, streak_count)
+            outcome = content.streak_encouragement(streak_count, locale)
     else:
         usage.session_data.streak_count = 0
 
         correct_result = usage.session_data.correct_result
-        outcome = content.incorrect(locale, correct_result)
+        outcome = content.incorrect(correct_result, locale)
 
-    question, result = content.exercise_question(locale,
-                                                 usage.session_data.operation,
-                                                 usage.session_data.difficulty)
+    question, result = content.exercise_question(usage.session_data.operation,
+                                                 usage.session_data.difficulty,
+                                                 locale)
     message = utils.combine_messages(outcome, question)
 
     usage.session_data.correct_result = result
@@ -167,7 +163,7 @@ def stop_or_cancel_intent_handler(handler_input):
     usage = models.SkillUsage.from_attributes(am.session_attributes)
     locale = handler_input.request_envelope.request.locale
 
-    message = content.session_summary(locale, usage.session_data)
+    message = content.session_summary(usage.session_data, locale)
 
     return handler_input.response_builder.speak(message)\
                                          .set_should_end_session(True)\
