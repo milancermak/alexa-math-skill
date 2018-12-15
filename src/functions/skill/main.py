@@ -92,9 +92,7 @@ def did_select_difficulty_handler(handler_input):
     slots = handler_input.request_envelope.request.intent.slots
 
     spoken_difficulty = slots['difficulty'].value
-    # TODO: use an enum for difficulty as well?
     difficulty = content.difficulty_to_value(spoken_difficulty, locale)
-    difficulty = max(1, min(5, difficulty)) # keep it in the [1, 5] interval
     usage.session_data.difficulty = difficulty
 
     ack = content.confirmation(locale)
@@ -150,7 +148,6 @@ def did_answer_handler(handler_input):
 
 @intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
 def help_intent_handler(handler_input):
-    # TODO: is there a way how to get out of the help prompt? what can the user do next?
     locale = handler_input.request_envelope.request.locale
     message = content.help_message(locale)
     return utils.build_response(handler_input, message)

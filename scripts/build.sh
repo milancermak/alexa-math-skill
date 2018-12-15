@@ -9,8 +9,6 @@ readonly SRCDIR=${DIR}/../src
 readonly COREDIR=${SRCDIR}/core
 readonly PIP_CACHE=${PIP_CACHE:-$DIR/../pip_cache}
 
-# TODO: make sure this works
-
 # remove __pycache__ dirs
 find ${SRCDIR} -type d -name '__pycache__' -exec rm -r '{}' +
 

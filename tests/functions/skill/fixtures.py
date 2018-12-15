@@ -75,4 +75,4 @@ def did_answer_intent_wrong() -> dict:
                         did_answer_intent_wrong])
 def handler_input(request) -> HandlerInput:
     request_envelope = request.param
-    return HandlerInput(request_envelope) # TODO: attr manager?
+    return HandlerInput(request_envelope)
