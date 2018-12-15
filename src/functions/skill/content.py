@@ -28,7 +28,7 @@ def streak_confirmation(streak_count, _locale):
 
 def streak_encouragement(streak_count, _locale):
     return utils.combine_messages(congratulations(_locale),
-                                  streak_confirmation(_locale, streak_count))
+                                  streak_confirmation(streak_count, _locale))
 
 def help_message(_locale):
     # pylint: disable=line-too-long
