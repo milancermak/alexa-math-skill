@@ -1,10 +1,8 @@
-import datetime
 import enum
+import time
 from typing import Optional
 
 import attr
-import dateutil.parser
-import dateutil.tz
 
 
 asdict = attr.asdict # for a cleaner interface
@@ -85,10 +83,7 @@ class SkillUsage:
     # pylint: disable=no-member
 
     launch_count: int = attr.ib(default=0)
-    previous_session_end: Optional[datetime.datetime] = attr.ib(
-        default=None,
-        converter=lambda a: dateutil.parser.parse(a) if a else None
-    )
+    previous_session_end: int = attr.ib(default=0, converter=int) # seconds since epoch
     session_data: Optional[SessionData] = attr.ib(default=None)
 
     @classmethod
@@ -98,11 +93,11 @@ class SkillUsage:
             attributes.get('session_data'))
 
         return cls(launch_count=attributes.get('launch_count', 0),
-                   previous_session_end=attributes.get('previous_session_end'),
+                   previous_session_end=attributes.get('previous_session_end', 0),
                    session_data=session_data)
 
     def is_new_session(self):
-        if self.previous_session_end is None:
+        if self.previous_session_end == 0:
             return True
 
         if self.session_data.operation is None:
@@ -111,6 +106,6 @@ class SkillUsage:
             # resum previous session
             return True
 
-        now = datetime.datetime.now(tz=dateutil.tz.tzutc())
-        ts_delta = now - self.previous_session_end
-        return ts_delta.total_seconds() >= STALE_SESSION_THRESHOLD
+        now = int(time.time())
+        delta = now - self.previous_session_end
+        return delta >= STALE_SESSION_THRESHOLD

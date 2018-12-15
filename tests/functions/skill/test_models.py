@@ -1,8 +1,7 @@
 # pylint: disable=no-self-use,no-member
 
-import datetime
+import time
 
-from dateutil.tz import tzutc
 import pytest
 
 from src.functions.skill import models
@@ -84,15 +83,14 @@ class TestSessionData:
 class TestSkillUsage:
 
     def test_creation_from_attributes(self):
-        attributes = {'previous_session_end': '2018-10-11T12:00:00Z',
+        attributes = {'previous_session_end': 1539255600,
                       'session_data': {'operation': 'mul',
                                        'difficulty': 1},
                       'launch_count': 4}
-        end_dt = datetime.datetime(2018, 10, 11, 12, 0, 0, tzinfo=tzutc())
         skill_usage = models.SkillUsage.from_attributes(attributes)
 
         assert skill_usage.launch_count == 4
-        assert skill_usage.previous_session_end == end_dt
+        assert skill_usage.previous_session_end == 1539255600
         assert skill_usage.session_data is not None
         assert skill_usage.session_data.operation == models.Operation.MUL
         assert skill_usage.session_data.difficulty == 1
@@ -101,21 +99,18 @@ class TestSkillUsage:
         skill_usage = models.SkillUsage.from_attributes(None)
 
         assert skill_usage.launch_count == 0
-        assert skill_usage.previous_session_end is None
+        assert skill_usage.previous_session_end == 0
         assert skill_usage.session_data is not None
 
     @pytest.mark.parametrize('attributes, expected', [
         (None, True),
         ({'session_data': {},
-          'previous_session_end': '2010-01-01T02:00:00Z'}, True),
+          'previous_session_end': 1262307600}, True),
         ({'session_data': {'operation': 'sub'},
-          'previous_session_end':
-          datetime.datetime.now(tz=tzutc()).isoformat(timespec='seconds')},
+          'previous_session_end': int(time.time())},
          False),
         ({'session_data': {'operation': 'div'},
-          'previous_session_end':
-          (datetime.datetime.now(tz=tzutc()) - datetime.timedelta(days=1))\
-          .isoformat(timespec='seconds')},
+          'previous_session_end': int(time.time()) - 24 * 3600},
          True)
     ])
     def test_is_new_session(self, attributes, expected):

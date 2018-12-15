@@ -1,4 +1,5 @@
 import os
+import time
 
 from ask_sdk.standard import StandardSkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
@@ -164,12 +165,11 @@ def stop_or_cancel_intent_handler(handler_input):
                                          .response
 
 def persist_skill_data(handler_input, user_initiated_shutdown=False):
-    session_end = handler_input.request_envelope.request.timestamp
     am = handler_input.attributes_manager
 
     usage = models.SkillUsage.from_attributes(am.session_attributes)
     usage.launch_count += 1
-    usage.previous_session_end = session_end
+    usage.previous_session_end = int(time.time())
 
     if user_initiated_shutdown:
         # we assume they won't want to resume a session on the next

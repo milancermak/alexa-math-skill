@@ -21,7 +21,7 @@ def test_launch_request_handler(launch_request):
     assert isinstance(r, dict)
     # TODO: could this be wrapped in a with statement? is it worth it?
     assert_keypath('sessionAttributes.launch_count', r, 0)
-    assert_keypath('sessionAttributes.previous_session_end', r, None)
+    assert_keypath('sessionAttributes.previous_session_end', r, 0)
     assert_keypath('sessionAttributes.session_data.operation', r, None)
     assert_keypath('sessionAttributes.session_data.difficulty', r, None)
     assert_keypath('sessionAttributes.session_data.correct_result', r, 0)
