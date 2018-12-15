@@ -1,13 +1,19 @@
 from collections import namedtuple
 from functools import partial
+from random import randint
 
 import pytest
 
 from src.functions.skill import content
 from src.functions.skill.models import Operation
 
-SessionData = namedtuple('SessionData', ['correct_answers_count',
-                                         'questions_count'])
+# ducktaped SessionData structures
+CountSessionData = namedtuple('CountSessionData', ['correct_answers_count',
+                                                   'questions_count'])
+
+QODSessionData = namedtuple('QODSessionData', ['questions_count',
+                                               'operation',
+                                               'difficulty'])
 
 
 @pytest.fixture(params=['en-US'])
@@ -42,7 +48,7 @@ def test_difficulty_to_value(difficulty_str, expected, locale):
     content.prompt_for_operation,
     partial(content.incorrect, 4),
     partial(content.streak_encouragement, 20),
-    partial(content.session_summary, SessionData(8, 4))
+    partial(content.session_summary, CountSessionData(8, 4))
 ])
 def test_for_string_value_single(fn, locale):
     assert isinstance(fn(locale), str)
@@ -59,6 +65,15 @@ def test_for_string_value_in_randomized(fn, locale):
         results_set.add(fn(locale))
 
     assert all([isinstance(result, str) for result in results_set])
+
+def test_training_question(operation, difficulty, locale):
+    session_data = QODSessionData(randint(0, 5),
+                                  operation,
+                                  difficulty)
+    question, result = content.training_question(session_data, locale)
+
+    assert isinstance(question, str)
+    assert isinstance(result, int)
 
 def test_generate_operands(operation, difficulty):
     op1, op2 = content.generate_operands(operation, difficulty)

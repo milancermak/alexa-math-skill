@@ -35,7 +35,7 @@ class Operation(enum.Enum):
         mapping = {cls.ADD: op1 + op2,
                    cls.SUB: op1 - op2,
                    cls.MUL: op1 * op2,
-                   cls.DIV: op1 / op2}
+                   cls.DIV: int(op1 / op2)}
         return mapping[self]
 
     def as_verb(self, _locale):

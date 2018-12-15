@@ -97,8 +97,7 @@ def did_select_difficulty_handler(handler_input):
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
-    operation = usage.session_data.operation
-    question, result = content.exercise_question(operation, difficulty, locale)
+    question, result = content.training_question(usage.session_data, locale)
     message = utils.combine_messages(ack, start_message, question)
 
     usage.session_data.correct_result = result
@@ -135,9 +134,7 @@ def did_answer_handler(handler_input):
         correct_result = usage.session_data.correct_result
         outcome = content.incorrect(correct_result, locale)
 
-    question, result = content.exercise_question(usage.session_data.operation,
-                                                 usage.session_data.difficulty,
-                                                 locale)
+    question, result = content.training_question(usage.session_data, locale)
     message = utils.combine_messages(outcome, question)
 
     usage.session_data.correct_result = result

@@ -52,12 +52,17 @@ def prompt_for_operation(_locale):
 
 # training
 
-# TODO: better name for the method maybe?
-def exercise_question(operation, difficulty, _locale):
-    op1, op2 = generate_operands(operation, difficulty)
-    # TODO: check if the "What is" doesn't get tiring all the time
-    return (f'What is {op1} {operation.as_verb(_locale)} {op2}?',
-            operation(op1, op2))
+def training_question(session_data, _locale):
+    if session_data.questions_count == 0:
+        lead = 'What is'
+    else:
+        lead = random.choice(['What is', '', 'How about', 'And'])
+
+    op1, op2 = generate_operands(session_data.operation,
+                                 session_data.difficulty)
+
+    return (f'{lead} {op1} {session_data.operation.as_verb(_locale)} {op2}?',
+            session_data.operation(op1, op2))
 
 def generate_operands(operation, difficulty):
     # pylint: disable=invalid-name
