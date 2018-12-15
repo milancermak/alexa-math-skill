@@ -10,6 +10,6 @@ install:
   - "bash -x ./scripts/install_deps.sh"
 
 script:
-  - pytest tests
+  - pytest tests -v
   - "bash -x ./scripts/lint_py.sh"
   - "bash -x ./scripts/lint_cfn.sh"
