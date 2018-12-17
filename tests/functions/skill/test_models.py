@@ -117,3 +117,24 @@ class TestSkillUsage:
         skill_usage = models.SkillUsage.from_attributes(attributes)
 
         assert skill_usage.is_new_session() == expected
+
+@pytest.mark.skip(reason='currently no way how to dumps Operation as str')
+def test_serialization():
+    attributes = {
+        'launch_count': 23,
+        'previous_session_end': 157000123,
+        'session_data': {
+            'operation': 'mul',
+            'difficulty': 2,
+            'correct_result': 12,
+            'questions_count': 9,
+            'correct_answers_count': 7,
+            'streak_count': 2
+        }
+    }
+
+    su = models.SkillUsage.from_attributes(attributes)
+    as_dict = models.asdict(su)
+
+    assert isinstance(su.session_data.operation, models.Operation)
+    assert isinstance(as_dict['session_data']['operation'], str)

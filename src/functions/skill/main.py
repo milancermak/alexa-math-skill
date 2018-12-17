@@ -202,6 +202,11 @@ def persist_skill_data(handler_input, user_initiated_shutdown=False):
         # launch, hence we persist empty session_data
         usage.session_data = models.SessionData()
 
+    if usage.session_data.operation:
+        # TODO FIXIT HACK :(
+        operation = usage.session_data.operation
+        usage.session_data.operation = operation.value
+
     am.persistent_attributes = models.asdict(usage)
     am.save_persistent_attributes()
 
