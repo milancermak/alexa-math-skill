@@ -1,7 +1,7 @@
+import jmespath
 import pytest
 
 from src.functions.skill import main
-from tests.test_utils import assert_keypath
 from .fixtures import ( # pylint: disable=unused-import
     dynamodb_client, launch_request, session_ended_request,
     did_select_operation_intent, did_select_difficulty_intent,
@@ -14,6 +14,23 @@ from .fixtures import ( # pylint: disable=unused-import
 def use_mock_dynamodb_client(dynamodb_client):
     # uses a new mock object every time so it's safe
     main.sb.dynamodb_client = dynamodb_client
+
+#
+# assert helpers
+#
+
+def assert_has_apl(result):
+    assert jmespath.search('response.directives[0].type', result) == \
+        'Alexa.Presentation.APL.RenderDocument'
+    assert jmespath.search('response.directives[0].datasources', result) is not None
+    assert jmespath.search('response.directives[0].document', result) is not None
+
+def assert_keypath(path, data, value):
+    assert jmespath.search(path, data) == value
+
+#
+# tests
+#
 
 def test_launch_request_handler(launch_request):
     r = main.sb.lambda_handler()(launch_request, {})
@@ -46,6 +63,7 @@ def test_did_select_difficulty_handler(did_select_difficulty_intent):
 
     assert isinstance(r, dict)
     assert_keypath('sessionAttributes.session_data.difficulty', r, 3)
+    assert_has_apl(r)
 
 def test_did_answer_handler_correct_answer(did_answer_intent_correct):
     r = main.sb.lambda_handler()(did_answer_intent_correct, {})
@@ -54,6 +72,7 @@ def test_did_answer_handler_correct_answer(did_answer_intent_correct):
     assert_keypath('sessionAttributes.session_data.questions_count', r, 1)
     assert_keypath('sessionAttributes.session_data.correct_answers_count', r, 1)
     assert_keypath('sessionAttributes.session_data.streak_count', r, 1)
+    assert_has_apl(r)
 
 def test_did_answer_handler_wrong_answer(did_answer_intent_wrong):
     r = main.sb.lambda_handler()(did_answer_intent_wrong, {})
@@ -62,7 +81,7 @@ def test_did_answer_handler_wrong_answer(did_answer_intent_wrong):
     assert_keypath('sessionAttributes.session_data.questions_count', r, 1)
     assert_keypath('sessionAttributes.session_data.correct_answers_count', r, 0)
     assert_keypath('sessionAttributes.session_data.streak_count', r, 0)
-
+    assert_has_apl(r)
 
 @pytest.mark.parametrize('intent_name', ['AMAZON.HelpIntent',
                                          'AMAZON.FallbackIntent',

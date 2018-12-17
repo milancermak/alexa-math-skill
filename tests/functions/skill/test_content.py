@@ -70,16 +70,18 @@ def test_training_question(operation, difficulty, locale):
     session_data = QODSessionData(randint(0, 5),
                                   operation,
                                   difficulty)
-    question, result = content.training_question(session_data, locale)
-
+    question = content.training_question(randint(1, 100),
+                                         randint(1, 100),
+                                         session_data,
+                                         locale)
     assert isinstance(question, str)
-    assert isinstance(result, int)
 
-def test_generate_operands(operation, difficulty):
-    op1, op2 = content.generate_operands(operation, difficulty)
+def test_generate_ops(operation, difficulty):
+    op1, op2, result = content.generate_ops(operation, difficulty)
 
     assert isinstance(op1, int)
     assert isinstance(op2, int)
+    assert isinstance(result, int)
 
     if operation is Operation.SUB or operation is Operation.DIV:
         assert op1 >= op2

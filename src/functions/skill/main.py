@@ -3,6 +3,8 @@ import time
 
 from ask_sdk.standard import StandardSkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
+from ask_sdk_model.interfaces.alexa.presentation.apl import \
+    RenderDocumentDirective
 
 from core import log_invocation # pylint: disable=no-name-in-module
 import content
@@ -84,6 +86,7 @@ def did_select_operation_handler(handler_input):
 
 @intent_handler('DidSelectDifficulty')
 def did_select_difficulty_handler(handler_input):
+    # pylint: disable=too-many-locals
     # TODO: handle also if they say "easier" or "harder" during
     # TODO: what if I don't have the operation set yet?
 
@@ -98,17 +101,30 @@ def did_select_difficulty_handler(handler_input):
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
-    question, result = content.training_question(usage.session_data, locale)
+
+    # TODO: there's similar code in DidAnswer to create a response, merge it
+    op1, op2, result = content.generate_ops(usage.session_data.operation,
+                                            usage.session_data.difficulty)
+    question = content.training_question(op1, op2, usage.session_data, locale)
     message = utils.combine_messages(ack, start_message, question)
+    apl_data = {'op1': op1,
+                'operand': usage.session_data.operation.as_symbol(),
+                'op2': op2}
+    apl = RenderDocumentDirective(document=content.apl_document(),
+                                  datasources=apl_data)
 
     usage.session_data.correct_result = result
     usage.session_data.questions_count += 1
     am.session_attributes = models.asdict(usage)
 
-    return utils.build_response(handler_input, message, question)
+    return handler_input.response_builder.speak(message)\
+                                         .ask(question)\
+                                         .add_directive(apl)\
+                                         .response
 
 @intent_handler('DidAnswer')
 def did_answer_handler(handler_input):
+    # pylint: disable=too-many-locals
 
     am = handler_input.attributes_manager
     usage = models.SkillUsage.from_attributes(am.session_attributes)
@@ -135,14 +151,24 @@ def did_answer_handler(handler_input):
         correct_result = usage.session_data.correct_result
         outcome = content.incorrect(correct_result, locale)
 
-    question, result = content.training_question(usage.session_data, locale)
+    op1, op2, result = content.generate_ops(usage.session_data.operation,
+                                            usage.session_data.difficulty)
+    question = content.training_question(op1, op2, usage.session_data, locale)
     message = utils.combine_messages(outcome, question)
+    apl_data = {'op1': op1,
+                'operand': usage.session_data.operation.as_symbol(),
+                'op2': op2}
+    apl = RenderDocumentDirective(document=content.apl_document(),
+                                  datasources=apl_data)
 
     usage.session_data.correct_result = result
     usage.session_data.questions_count += 1
     am.session_attributes = models.asdict(usage)
 
-    return utils.build_response(handler_input, message, question)
+    return handler_input.response_builder.speak(message)\
+                                         .ask(question)\
+                                         .add_directive(apl)\
+                                         .response
 
 @intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
 def help_intent_handler(handler_input):

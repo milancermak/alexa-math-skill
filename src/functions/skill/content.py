@@ -53,19 +53,15 @@ def prompt_for_operation(_locale):
 
 # training
 
-def training_question(session_data, _locale):
+def training_question(op1, op2, session_data, _locale):
     if session_data.questions_count == 0:
         lead = 'What is'
     else:
         lead = random.choice(['What is', '', 'How about', 'And'])
 
-    op1, op2 = generate_operands(session_data.operation,
-                                 session_data.difficulty)
+    return f'{lead} {op1} {session_data.operation.as_verb(_locale)} {op2}?'
 
-    return (f'{lead} {op1} {session_data.operation.as_verb(_locale)} {op2}?',
-            session_data.operation(op1, op2))
-
-def generate_operands(operation, difficulty):
+def generate_ops(operation, difficulty):
     # pylint: disable=invalid-name
     op1_max, op2_max = {1: (10, 10),
                         2: (50, 50),
@@ -85,7 +81,7 @@ def generate_operands(operation, difficulty):
         # assure round results of division
         op1 = math.ceil(op1 / op2) * op2
 
-    return op1, op2
+    return op1, op2, operation(op1, op2)
 
 def difficulty_to_value(spoken_difficulty, _locale):
     # pylint: disable=no-else-return
@@ -97,3 +93,23 @@ def difficulty_to_value(spoken_difficulty, _locale):
         return 3
     else:
         return 2
+
+def apl_document():
+    # py version of apl_document.json
+    return \
+    {'type': 'APL',
+     'version': '1.0',
+     'import': [{'name': 'alexa-styles', 'version': '1.0.0'}],
+     'mainTemplate': {
+         'parameters': ['payload'],
+         'items': [
+             {'type': 'Container',
+              'alignItems': 'center',
+              'justifyContent': 'center',
+              'height': '100vh',
+              'width': '100vw',
+              'items': [
+                  {'type': 'Text',
+                   'fontSize': '@fontSizeXXLarge',
+                   'fontWeight': '@fontWeightLight',
+                   'text': '${payload.op1} ${payload.operator} ${payload.op2}'}]}]}}
