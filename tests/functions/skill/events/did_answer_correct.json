@@ -30,7 +30,12 @@
             },
             "device": {
                 "supportedInterfaces": {
-                    "AudioPlayer": {}
+                    "AudioPlayer": {},
+                    "Alexa.Presentation.APL": {
+                        "runtime": {
+                            "maxVersion": "1.0"
+                        }
+                    }
                 }
             }
         }

@@ -1,8 +1,11 @@
-from ask_sdk_model import Response
+import json
+
+from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_model import RequestEnvelope, Response
 import pytest
 
 from src.functions.skill import utils
-from .fixtures import handler_input # pylint: disable=unused-import
+from .fixtures import handler_input, load_event, serializer # pylint: disable=unused-import
 
 
 def test_build_response(handler_input):
@@ -40,3 +43,18 @@ def test_randomize():
 def test_speechcon():
     expected = '<say-as interpret-as="interjection">boom</say-as>'
     assert utils.speechcon('boom') == expected
+
+@pytest.mark.parametrize('event_name, has_support', [
+    ('launch_request', False),
+    ('session_ended_request', False),
+    ('did_select_operation', False),
+    ('did_select_difficulty', True),
+    ('did_answer_correct', True),
+    ('did_answer_wrong', True)
+])
+def test_has_apl_support(event_name, has_support):
+    envelope_dict = load_event(event_name)
+    request_envelope = serializer.deserialize(json.dumps(envelope_dict),
+                                              RequestEnvelope)
+    hi = HandlerInput(request_envelope)
+    assert utils.has_apl_support(hi) == has_support

@@ -109,10 +109,11 @@ def did_select_difficulty_handler(handler_input):
     message = utils.combine_messages(ack, start_message, question)
     am.session_attributes = models.asdict(usage)
 
-    return handler_input.response_builder.speak(message)\
-                                         .ask(question)\
-                                         .add_directive(apl)\
-                                         .response
+    rb = handler_input.response_builder
+    rb.speak(message).ask(question)
+    if utils.has_apl_support(handler_input):
+        rb.add_directive(apl)
+    return rb.response
 
 @sb.request_handler(can_handle_func=lambda hi: \
                     is_intent_name('DidAnswer')(hi) and \
@@ -151,10 +152,11 @@ def did_answer_handler(handler_input):
     message = utils.combine_messages(outcome, question)
     am.session_attributes = models.asdict(usage)
 
-    return handler_input.response_builder.speak(message)\
-                                         .ask(question)\
-                                         .add_directive(apl)\
-                                         .response
+    rb = handler_input.response_builder
+    rb.speak(message).ask(question)
+    if utils.has_apl_support(handler_input):
+        rb.add_directive(apl)
+    return rb.response
 
 @intent_handler('AMAZON.StopIntent', 'AMAZON.CancelIntent')
 def stop_or_cancel_intent_handler(handler_input):

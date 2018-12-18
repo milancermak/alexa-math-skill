@@ -17,7 +17,7 @@ disable=missing-docstring,
 msg-template='{abspath}:{line}:{column}: {msg} ({symbol})'
 
 [BASIC]
-good-names=dt,ts,s3,logger,gz,f,fn,i,sb,hi,am
+good-names=dt,ts,s3,logger,gz,f,fn,i,sb,hi,am,rb
 
 # allow for lowercase constants
 const-rgx=(([A-Za-z_][A-Za-z0-9_]*)|(__.*__))$
