@@ -1,14 +1,12 @@
 import jmespath
 import pytest
 
-from ask_sdk_model.interfaces.alexa.presentation.apl import \
-    RenderDocumentDirective
-from src.functions.skill import main, models
+from src.functions.skill import main
 from .fixtures import ( # pylint: disable=unused-import
     dynamodb_client, launch_request, session_ended_request,
     did_select_operation_intent, did_select_difficulty_intent,
     did_answer_intent_correct, did_answer_intent_wrong,
-    build_intent_event, unhandled_intent, locale
+    build_intent_event, unhandled_intent
 )
 
 
@@ -107,22 +105,6 @@ def test_early_stop(intent_name):
     assert isinstance(r, dict)
     assert_keypath('response.outputSpeech', r, None)
     assert_keypath('response.shouldEndSession', r, True)
-
-@pytest.mark.parametrize('questions_count', [0, 1])
-def test_build_question_content(questions_count, locale):
-    attributes = {'launch_count': 4,
-                  'previous_session_end': 15000000,
-                  'session_data': {
-                      'operation': 'mul',
-                      'difficulty': 3,
-                      'questions_count': questions_count
-                  }}
-    usage = models.SkillUsage.from_attributes(attributes)
-
-    question, apl = main.build_question_content(usage, locale)
-
-    assert isinstance(question, str)
-    assert isinstance(apl, RenderDocumentDirective)
 
 def test_response_with_help_message_on_exception(unhandled_intent):
     r = main.sb.lambda_handler()(unhandled_intent, {})

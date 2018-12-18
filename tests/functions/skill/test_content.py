@@ -4,8 +4,10 @@ from random import randint
 
 import pytest
 
+from ask_sdk_model.interfaces.alexa.presentation.apl import \
+    RenderDocumentDirective
 from src.functions.skill import content
-from src.functions.skill.models import Operation
+from src.functions.skill.models import Operation, SkillUsage
 from .fixtures import locale # pylint: disable=unused-import
 
 # ducktaped SessionData structures
@@ -61,6 +63,23 @@ def test_for_string_value_in_randomized(fn, locale):
         results_set.add(fn(locale))
 
     assert all([isinstance(result, str) for result in results_set])
+
+@pytest.mark.parametrize('questions_count', [0, 1])
+def test_build_question(questions_count, locale):
+    attributes = {'launch_count': 4,
+                  'previous_session_end': 15000000,
+                  'session_data': {
+                      'operation': 'mul',
+                      'difficulty': 3,
+                      'questions_count': questions_count
+                  }}
+    usage = SkillUsage.from_attributes(attributes)
+
+    question, apl = content.build_question(usage, locale)
+
+    assert isinstance(question, str)
+    assert isinstance(apl, RenderDocumentDirective)
+
 
 def test_training_question(operation, difficulty, locale):
     session_data = QODSessionData(randint(0, 5),

@@ -3,8 +3,6 @@ import time
 
 from ask_sdk.standard import StandardSkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
-from ask_sdk_model.interfaces.alexa.presentation.apl import \
-    RenderDocumentDirective
 import jmespath
 
 from core import logger, log_invocation # pylint: disable=no-name-in-module
@@ -41,22 +39,6 @@ def has_session_attribute(handler_input, attr_name):
     skill_attributes = handler_input.attributes_manager.session_attributes
     value = jmespath.search(f'session_data.{attr_name}', skill_attributes)
     return value is not None
-
-def build_question_content(usage, locale):
-    # NOTE: has side-effects on usage
-    op1, op2, result = content.generate_ops(usage.session_data.operation,
-                                            usage.session_data.difficulty)
-    question = content.training_question(op1, op2, usage.session_data, locale)
-    apl_data = {'op1': op1,
-                'op2': op2,
-                'operand': usage.session_data.operation.as_symbol()}
-    apl_document = RenderDocumentDirective(document=content.apl_document(),
-                                           datasources=apl_data)
-
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
-
-    return question, apl_document
 
 #
 # handlers
@@ -122,7 +104,7 @@ def did_select_difficulty_handler(handler_input):
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
-    question, apl = build_question_content(usage, locale)
+    question, apl = content.build_question(usage, locale)
     message = utils.combine_messages(ack, start_message, question)
     am.session_attributes = models.asdict(usage)
 
@@ -164,7 +146,7 @@ def did_answer_handler(handler_input):
         outcome = content.incorrect(correct_result, locale)
 
 
-    question, apl = build_question_content(usage, locale)
+    question, apl = content.build_question(usage, locale)
     message = utils.combine_messages(outcome, question)
     am.session_attributes = models.asdict(usage)
 
@@ -211,19 +193,18 @@ def persist_skill_data(handler_input, user_initiated_shutdown=False):
     am.persistent_attributes = models.asdict(usage)
     am.save_persistent_attributes()
 
-def help_message_response(handler_input):
+@intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
+def help_intent_handler(handler_input):
     locale = handler_input.request_envelope.request.locale
     message = content.help_message(locale)
     return utils.build_response(handler_input, message)
 
-@intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
-def help_intent_handler(handler_input):
-    return help_message_response(handler_input)
-
 @sb.exception_handler(can_handle_func=lambda _i, _e: True)
 def global_exception_handler(handler_input, exception):
     logger.warning('handler exception', exc_info=exception)
-    return help_message_response(handler_input)
+    locale = handler_input.request_envelope.request.locale
+    message = content.dead_end_message(locale)
+    return utils.build_response(handler_input, message)
 
 @log_invocation
 def handler(event, context):

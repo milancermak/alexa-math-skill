@@ -1,6 +1,9 @@
 import math
 import random
 
+from ask_sdk_model.interfaces.alexa.presentation.apl import \
+    RenderDocumentDirective
+
 from models import Operation
 import utils
 
@@ -34,6 +37,10 @@ def help_message(_locale):
     # pylint: disable=line-too-long
     return 'This skill helps you practice your math arithmetics. Simply choose the operation you want to practice and a difficulty level. Alexa will then keep on giving you math exercises until you tell her to stop. So what would you like to train? Addition, subtraction, multiplication, or division?'
 
+def dead_end_message(_locale):
+    # pylint: disable=line-too-long
+    return 'Sorry, I don\'t understand that. Let\'s try from the beginning. What would you like to train? Addition, subtraction, multiplication, or division?'
+
 def start_message(_locale):
     return 'Let\'s get started'
 
@@ -52,6 +59,22 @@ def prompt_for_operation(_locale):
     return 'What would you like to train? Addition, subtraction, multiplication, or division?'
 
 # training
+
+def build_question(usage, locale):
+    # NOTE: has side-effects on usage
+    op1, op2, result = generate_ops(usage.session_data.operation,
+                                    usage.session_data.difficulty)
+    question = training_question(op1, op2, usage.session_data, locale)
+    apl_data = {'op1': op1,
+                'op2': op2,
+                'operand': usage.session_data.operation.as_symbol()}
+    apl = RenderDocumentDirective(document=apl_document(),
+                                  datasources=apl_data)
+
+    usage.session_data.correct_result = result
+    usage.session_data.questions_count += 1
+
+    return question, apl
 
 def training_question(op1, op2, session_data, _locale):
     if session_data.questions_count == 0:
