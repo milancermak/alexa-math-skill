@@ -5,6 +5,7 @@ from ask_sdk.standard import StandardSkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
 from ask_sdk_model.interfaces.alexa.presentation.apl import \
     RenderDocumentDirective
+import jmespath
 
 from core import log_invocation # pylint: disable=no-name-in-module
 import content
@@ -12,8 +13,6 @@ import models
 import utils
 
 
-# TODO: add cards?
-# TODO: add APL
 # TODO: navigate home intent?
 # TODO: support "make it harder/easier" and "change operation" intents
 
@@ -37,6 +36,11 @@ def intent_handler(*intent_names):
                  for name in intent_names])
         return sb.request_handler(has_intent)(fn)
     return wrapper
+
+def has_session_attribute(handler_input, attr_name):
+    skill_attributes = handler_input.attributes_manager.session_attributes
+    value = jmespath.search(f'session_data.{attr_name}', skill_attributes)
+    return value is not None
 
 #
 # handlers
@@ -84,11 +88,12 @@ def did_select_operation_handler(handler_input):
 
     return utils.build_response(handler_input, message, question)
 
-@intent_handler('DidSelectDifficulty')
+@sb.request_handler(can_handle_func=lambda hi: \
+                    is_intent_name('DidSelectDifficulty')(hi) and \
+                    has_session_attribute(hi, 'operation'))
 def did_select_difficulty_handler(handler_input):
     # pylint: disable=too-many-locals
     # TODO: handle also if they say "easier" or "harder" during
-    # TODO: what if I don't have the operation set yet?
 
     am = handler_input.attributes_manager
     usage = models.SkillUsage.from_attributes(am.session_attributes)
@@ -122,7 +127,10 @@ def did_select_difficulty_handler(handler_input):
                                          .add_directive(apl)\
                                          .response
 
-@intent_handler('DidAnswer')
+@sb.request_handler(can_handle_func=lambda hi: \
+                    is_intent_name('DidAnswer')(hi) and \
+                    has_session_attribute(hi, 'operation') and \
+                    has_session_attribute(hi, 'difficulty'))
 def did_answer_handler(handler_input):
     # pylint: disable=too-many-locals
 
