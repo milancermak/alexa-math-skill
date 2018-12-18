@@ -67,7 +67,6 @@ def prompt_for_operation(_locale):
 # training
 
 def build_question(usage, locale):
-    # NOTE: has side-effects on usage
     op1, op2, result = generate_ops(usage.session_data.operation,
                                     usage.session_data.difficulty)
     question = training_question(op1, op2, usage.session_data, locale)
@@ -77,10 +76,7 @@ def build_question(usage, locale):
     apl = RenderDocumentDirective(document=apl_document(),
                                   datasources=apl_data)
 
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
-
-    return question, apl
+    return question, result, apl
 
 def training_question(op1, op2, session_data, _locale):
     if session_data.questions_count == 0:

@@ -104,7 +104,8 @@ def did_select_difficulty_handler(handler_input):
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
-    question, apl = content.build_question(usage, locale)
+    question, result, apl = content.build_question(usage, locale)
+    usage.session_data.correct_result = result
     message = utils.combine_messages(ack, start_message, question)
     am.session_attributes = models.asdict(usage)
 
@@ -143,9 +144,10 @@ def did_answer_handler(handler_input):
 
         correct_result = usage.session_data.correct_result
         outcome = content.incorrect(correct_result, locale)
+    usage.session_data.questions_count += 1
 
-
-    question, apl = content.build_question(usage, locale)
+    question, result, apl = content.build_question(usage, locale)
+    usage.session_data.correct_result = result
     message = utils.combine_messages(outcome, question)
     am.session_attributes = models.asdict(usage)
 

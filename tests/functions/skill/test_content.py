@@ -78,9 +78,10 @@ def test_build_question(questions_count, locale):
                   }}
     usage = SkillUsage.from_attributes(attributes)
 
-    question, apl = content.build_question(usage, locale)
+    question, result, apl = content.build_question(usage, locale)
 
     assert isinstance(question, str)
+    assert isinstance(result, int)
     assert isinstance(apl, RenderDocumentDirective)
 
 
