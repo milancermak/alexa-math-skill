@@ -88,15 +88,31 @@ def training_question(op1, op2, session_data, _locale):
 
 def generate_ops(operation, difficulty):
     # pylint: disable=invalid-name
-    op1_max, op2_max = {1: (10, 10),
-                        2: (50, 50),
-                        3: (100, 100),
-                        4: (1000, 100),
-                        5: (1000, 1000)}[difficulty]
+    add_sub_limits = {
+        1: (10, 10),
+        2: (50, 50),
+        3: (100, 100),
+        4: (1000, 100),
+        5: (1000, 1000)
+    }
+    mul_div_limits = {
+        1: (10, 10),
+        2: (30, 30),
+        3: (50, 50),
+        4: (100, 50),
+        5: (1000, 100)
+    }
+
+    # using "is" to compare the enums does not work when running tests (??)
+
+    if operation.value in [Operation.ADD.value, Operation.SUB.value]:
+        op1_max, op2_max = add_sub_limits[difficulty]
+    else:
+        op1_max, op2_max = mul_div_limits[difficulty]
+
     op1 = random.randint(1, op1_max)
     op2 = random.randint(1, op2_max)
 
-    # using "is" to compare the enums does not work when running tests (??)
     if (operation.value in [Operation.SUB.value, Operation.DIV.value] and
         op1 < op2): # pylint: disable=bad-continuation
         # prevent "unwanted" results
