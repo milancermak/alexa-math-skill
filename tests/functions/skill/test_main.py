@@ -91,3 +91,17 @@ def test_other_intents(intent_name):
     intent_event = build_intent_event(intent_name)
     r = main.sb.lambda_handler()(intent_event, {})
     assert isinstance(r, dict)
+
+@pytest.mark.parametrize('intent_name', ['AMAZON.StopIntent',
+                                         'AMAZON.CancelIntent'])
+def test_early_stop(intent_name):
+    intent_event = build_intent_event(intent_name)
+    del intent_event['session']['attributes']['session_data']['operation']
+    del intent_event['session']['attributes']['session_data']['difficulty']
+    intent_event['session']['attributes']['session_data']['questions_count'] = 0
+
+    r = main.sb.lambda_handler()(intent_event, {})
+
+    assert isinstance(r, dict)
+    assert_keypath('response.outputSpeech', r, None)
+    assert_keypath('response.shouldEndSession', r, True)

@@ -184,6 +184,10 @@ def stop_or_cancel_intent_handler(handler_input):
     usage = models.SkillUsage.from_attributes(am.session_attributes)
     locale = handler_input.request_envelope.request.locale
 
+    if usage.session_data.questions_count == 0:
+        return handler_input.response_builder.set_should_end_session(True)\
+                                             .response
+
     message = content.session_summary(usage.session_data, locale)
 
     return handler_input.response_builder.speak(message)\
