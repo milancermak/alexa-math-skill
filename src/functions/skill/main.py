@@ -13,6 +13,7 @@ import utils
 
 # TODO: navigate home intent?
 # TODO: support "make it harder/easier" and "change operation" intents
+# TODO: prompt for a 5-star review
 
 sb = StandardSkillBuilder(table_name=os.environ['SKILL_TABLE_NAME'])
 sb.skill_id = 'amzn1.ask.skill.d455ad8c-dde9-4ee8-a492-4e3985b5ff79'
@@ -47,19 +48,19 @@ def has_session_attribute(handler_input, attr_name):
 @request_handler('LaunchRequest')
 def launch_request_handler(handler_input):
     # TODO: handle launch with preselected op and diff
-
     # TODO: manage late answers (i.e. launch when the answer to an exercise question didn't come in time - do you want to continue or start a new session?)
 
     am = handler_input.attributes_manager
     usage = models.SkillUsage.from_attributes(am.persistent_attributes)
-    if usage.is_new_session():
-        # TODO: add intro message on first run?
-        # TODO: maybe ask if they want to continue? if so then I'd need to remember the question as well /o\
-        usage.session_data = models.SessionData()
-    am.session_attributes = models.asdict(usage)
-
     locale = handler_input.request_envelope.request.locale
-    message = content.prompt_for_operation(locale)
+
+    intro = content.intro_message(usage.launch_count, locale)
+    # TODO: maybe ask if they want to continue? if so then I'd need to remember the question as well /o\
+    usage.session_data = models.SessionData()
+    am.session_attributes = models.asdict(usage)
+    prompt = content.prompt_for_operation(locale)
+    message = utils.combine_messages(intro, prompt)
+
     return utils.build_response(handler_input, message)
 
 @request_handler('SessionEndedRequest')

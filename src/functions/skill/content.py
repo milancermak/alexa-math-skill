@@ -33,13 +33,19 @@ def streak_encouragement(streak_count, _locale):
     return utils.combine_messages(congratulations(_locale),
                                   streak_confirmation(streak_count, _locale))
 
+def dead_end_message(_locale):
+    # pylint: disable=line-too-long
+    return 'Sorry, I don\'t understand that. Let\'s try from the beginning. What would you like to train? Addition, subtraction, multiplication, or division?'
+
 def help_message(_locale):
     # pylint: disable=line-too-long
     return 'This skill helps you practice your math arithmetics. Simply choose the operation you want to practice and a difficulty level. Alexa will then keep on giving you math exercises until you tell her to stop. So what would you like to train? Addition, subtraction, multiplication, or division?'
 
-def dead_end_message(_locale):
-    # pylint: disable=line-too-long
-    return 'Sorry, I don\'t understand that. Let\'s try from the beginning. What would you like to train? Addition, subtraction, multiplication, or division?'
+def intro_message(launch_count, _locale):
+    # pulint: disable=line-too-long
+    if launch_count == 0:
+        return 'Hello and welcome to match practice. This skill helps you to get great in basic math arithmetics by you training exercise to solve.'
+    return 'Welcome back to math practice.'
 
 def start_message(_locale):
     return 'Let\'s get started'

@@ -44,9 +44,12 @@ def test_difficulty_to_value(difficulty_str, expected, locale):
     content.start_message,
     content.prompt_for_difficulty,
     content.prompt_for_operation,
+    content.dead_end_message,
     partial(content.incorrect, 4),
     partial(content.streak_encouragement, 20),
-    partial(content.session_summary, CountSessionData(8, 4))
+    partial(content.session_summary, CountSessionData(8, 4)),
+    partial(content.intro_message, 0),
+    partial(content.intro_message, 1),
 ])
 def test_for_string_value_single(fn, locale):
     assert isinstance(fn(locale), str)
