@@ -7,7 +7,7 @@ from ask_sdk_model.interfaces.alexa.presentation.apl import \
     RenderDocumentDirective
 import jmespath
 
-from core import log_invocation # pylint: disable=no-name-in-module
+from core import logger, log_invocation # pylint: disable=no-name-in-module
 import content
 import models
 import utils
@@ -217,9 +217,10 @@ def persist_skill_data(handler_input, user_initiated_shutdown=False):
     am.persistent_attributes = models.asdict(usage)
     am.save_persistent_attributes()
 
-# @sb.exception_handler(can_handle_func=lambda _i, _e: True)
-# def global_exception_handler(handler_input, exception):
-#     pass
+@sb.exception_handler(can_handle_func=lambda _i, _e: True)
+def global_exception_handler(handler_input, exception):
+    logger.warn('handler exception', exc_info=exception)
+    return help_intent_handler(handler_input)
 
 @log_invocation
 def handler(event, context):
