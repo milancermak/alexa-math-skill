@@ -91,7 +91,6 @@ def did_select_operation_handler(handler_input):
                     is_intent_name('DidSelectDifficulty')(hi) and \
                     has_session_attribute(hi, 'operation'))
 def did_select_difficulty_handler(handler_input):
-    # pylint: disable=too-many-locals
     # TODO: handle also if they say "easier" or "harder" during
 
     am = handler_input.attributes_manager
@@ -120,8 +119,6 @@ def did_select_difficulty_handler(handler_input):
                     has_session_attribute(hi, 'operation') and \
                     has_session_attribute(hi, 'difficulty'))
 def did_answer_handler(handler_input):
-    # pylint: disable=too-many-locals
-
     am = handler_input.attributes_manager
     usage = models.SkillUsage.from_attributes(am.session_attributes)
     locale = handler_input.request_envelope.request.locale
