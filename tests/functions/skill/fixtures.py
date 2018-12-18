@@ -4,7 +4,12 @@ from string import Template
 from unittest.mock import Mock
 
 from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_core.serialize import DefaultSerializer
+from ask_sdk_model import RequestEnvelope
 import pytest
+
+
+serializer = DefaultSerializer()
 
 
 @pytest.fixture
@@ -35,7 +40,7 @@ def load_event(event_name) -> dict:
     with open(path) as f:
         return json.load(f)
 
-def build_intent_event(intent_name):
+def build_intent_event(intent_name) -> dict:
     here = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(here, 'events', 'intent_template.json')
     with open(path) as f:
@@ -78,9 +83,11 @@ def unhandled_intent() -> dict:
                         did_answer_intent_correct,
                         did_answer_intent_wrong])
 def handler_input(request) -> HandlerInput:
-    request_envelope = request.param
+    envelope_dict = request.param
+    request_envelope = serializer.deserialize(json.dumps(envelope_dict),
+                                              RequestEnvelope)
     return HandlerInput(request_envelope)
 
 @pytest.fixture(params=['en-US'])
-def locale(request):
+def locale(request) -> str:
     return request.param
