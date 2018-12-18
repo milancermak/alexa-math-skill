@@ -51,8 +51,7 @@ def start_message(_locale):
     return 'Let\'s get started'
 
 def session_summary(session_data, _locale):
-    # -1 on the questions_count because it increments before the user can Stop the skill
-    return f'You\'ve got {session_data.correct_answers_count} out of {max(0, session_data.questions_count-1)} correct. Talk to you soon!'
+    return f'You\'ve got {session_data.correct_answers_count} out of {session_data.questions_count} correct. Talk to you soon!'
 
 # prompts
 
