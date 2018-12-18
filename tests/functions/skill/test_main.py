@@ -45,18 +45,21 @@ def test_launch_request_handler(launch_request):
     assert_keypath('sessionAttributes.session_data.questions_count', r, 0)
     assert_keypath('sessionAttributes.session_data.correct_answers_count', r, 0)
     assert_keypath('sessionAttributes.session_data.streak_count', r, 0)
+    assert_keypath('response.directives', r, None)
 
 def test_session_ended_request_handler(session_ended_request):
     r = main.sb.lambda_handler()(session_ended_request, {})
 
     assert isinstance(r, dict)
     assert_keypath('sessionAttributes', r, {})
+    assert_keypath('response.directives', r, None)
 
 def test_did_select_operation_handler(did_select_operation_intent):
     r = main.sb.lambda_handler()(did_select_operation_intent, {})
 
     assert isinstance(r, dict)
     assert_keypath('sessionAttributes.session_data.operation', r, 'add')
+    assert_keypath('response.directives', r, None)
 
 def test_did_select_difficulty_handler(did_select_difficulty_intent):
     r = main.sb.lambda_handler()(did_select_difficulty_intent, {})
@@ -91,6 +94,7 @@ def test_other_intents(intent_name):
     intent_event = build_intent_event(intent_name)
     r = main.sb.lambda_handler()(intent_event, {})
     assert isinstance(r, dict)
+    assert_keypath('response.directives', r, None)
 
 @pytest.mark.parametrize('intent_name', ['AMAZON.StopIntent',
                                          'AMAZON.CancelIntent'])
@@ -105,8 +109,10 @@ def test_early_stop(intent_name):
     assert isinstance(r, dict)
     assert_keypath('response.outputSpeech', r, None)
     assert_keypath('response.shouldEndSession', r, True)
+    assert_keypath('response.directives', r, None)
 
 def test_response_with_help_message_on_exception(unhandled_intent):
     r = main.sb.lambda_handler()(unhandled_intent, {})
 
     assert isinstance(r, dict)
+    assert_keypath('response.directives', r, None)

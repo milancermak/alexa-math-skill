@@ -34,11 +34,13 @@ def dynamodb_client():
 
     return mock_client
 
-def load_event(event_name) -> dict:
+def load_event(event_name, as_json=True) -> dict:
     here = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(here, 'events', f'{event_name}.json')
     with open(path) as f:
-        return json.load(f)
+        if as_json:
+            return json.load(f)
+        return f.read()
 
 def build_intent_event(intent_name) -> dict:
     here = os.path.abspath(os.path.dirname(__file__))
@@ -76,16 +78,16 @@ def did_answer_intent_wrong() -> dict:
 def unhandled_intent() -> dict:
     return load_event('unhandled_intent')
 
-@pytest.fixture(params=[launch_request,
-                        session_ended_request,
-                        did_select_operation_intent,
-                        did_select_difficulty_intent,
-                        did_answer_intent_correct,
-                        did_answer_intent_wrong])
+@pytest.fixture(params=['launch_request',
+                        'session_ended_request',
+                        'did_select_operation',
+                        'did_select_difficulty',
+                        'did_answer_correct',
+                        'did_answer_wrong'])
 def handler_input(request) -> HandlerInput:
-    envelope_dict = request.param
-    request_envelope = serializer.deserialize(json.dumps(envelope_dict),
-                                              RequestEnvelope)
+    event_name = request.param
+    event = load_event(event_name, as_json=False)
+    request_envelope = serializer.deserialize(event, RequestEnvelope)
     return HandlerInput(request_envelope)
 
 @pytest.fixture(params=['en-US'])
