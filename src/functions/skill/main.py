@@ -42,6 +42,22 @@ def has_session_attribute(handler_input, attr_name):
     value = jmespath.search(f'session_data.{attr_name}', skill_attributes)
     return value is not None
 
+def build_question_content(usage, locale):
+    # NOTE: has side-effects on usage
+    op1, op2, result = content.generate_ops(usage.session_data.operation,
+                                            usage.session_data.difficulty)
+    question = content.training_question(op1, op2, usage.session_data, locale)
+    apl_data = {'op1': op1,
+                'op2': op2,
+                'operand': usage.session_data.operation.as_symbol()}
+    apl_document = RenderDocumentDirective(document=content.apl_document(),
+                                           datasources=apl_data)
+
+    usage.session_data.correct_result = result
+    usage.session_data.questions_count += 1
+
+    return question, apl_document
+
 #
 # handlers
 #
@@ -106,20 +122,8 @@ def did_select_difficulty_handler(handler_input):
 
     ack = content.confirmation(locale)
     start_message = content.start_message(locale)
-
-    # TODO: there's similar code in DidAnswer to create a response, merge it
-    op1, op2, result = content.generate_ops(usage.session_data.operation,
-                                            usage.session_data.difficulty)
-    question = content.training_question(op1, op2, usage.session_data, locale)
+    question, apl = build_question_content(usage, locale)
     message = utils.combine_messages(ack, start_message, question)
-    apl_data = {'op1': op1,
-                'operand': usage.session_data.operation.as_symbol(),
-                'op2': op2}
-    apl = RenderDocumentDirective(document=content.apl_document(),
-                                  datasources=apl_data)
-
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
     am.session_attributes = models.asdict(usage)
 
     return handler_input.response_builder.speak(message)\
@@ -159,18 +163,9 @@ def did_answer_handler(handler_input):
         correct_result = usage.session_data.correct_result
         outcome = content.incorrect(correct_result, locale)
 
-    op1, op2, result = content.generate_ops(usage.session_data.operation,
-                                            usage.session_data.difficulty)
-    question = content.training_question(op1, op2, usage.session_data, locale)
-    message = utils.combine_messages(outcome, question)
-    apl_data = {'op1': op1,
-                'operand': usage.session_data.operation.as_symbol(),
-                'op2': op2}
-    apl = RenderDocumentDirective(document=content.apl_document(),
-                                  datasources=apl_data)
 
-    usage.session_data.correct_result = result
-    usage.session_data.questions_count += 1
+    question, apl = build_question_content(usage, locale)
+    message = utils.combine_messages(outcome, question)
     am.session_attributes = models.asdict(usage)
 
     return handler_input.response_builder.speak(message)\

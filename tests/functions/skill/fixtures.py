@@ -76,3 +76,7 @@ def did_answer_intent_wrong() -> dict:
 def handler_input(request) -> HandlerInput:
     request_envelope = request.param
     return HandlerInput(request_envelope)
+
+@pytest.fixture(params=['en-US'])
+def locale(request):
+    return request.param

@@ -6,6 +6,7 @@ import pytest
 
 from src.functions.skill import content
 from src.functions.skill.models import Operation
+from .fixtures import locale # pylint: disable=unused-import
 
 # ducktaped SessionData structures
 CountSessionData = namedtuple('CountSessionData', ['correct_answers_count',
@@ -14,11 +15,6 @@ CountSessionData = namedtuple('CountSessionData', ['correct_answers_count',
 QODSessionData = namedtuple('QODSessionData', ['questions_count',
                                                'operation',
                                                'difficulty'])
-
-
-@pytest.fixture(params=['en-US'])
-def locale(request):
-    return request.param
 
 @pytest.fixture(params=[Operation.ADD,
                         Operation.SUB,
