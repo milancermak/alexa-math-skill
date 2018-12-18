@@ -173,12 +173,6 @@ def did_answer_handler(handler_input):
                                          .add_directive(apl)\
                                          .response
 
-@intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
-def help_intent_handler(handler_input):
-    locale = handler_input.request_envelope.request.locale
-    message = content.help_message(locale)
-    return utils.build_response(handler_input, message)
-
 @intent_handler('AMAZON.StopIntent', 'AMAZON.CancelIntent')
 def stop_or_cancel_intent_handler(handler_input):
     persist_skill_data(handler_input, user_initiated_shutdown=True)
@@ -217,10 +211,19 @@ def persist_skill_data(handler_input, user_initiated_shutdown=False):
     am.persistent_attributes = models.asdict(usage)
     am.save_persistent_attributes()
 
+def help_message_response(handler_input):
+    locale = handler_input.request_envelope.request.locale
+    message = content.help_message(locale)
+    return utils.build_response(handler_input, message)
+
+@intent_handler('AMAZON.HelpIntent', 'AMAZON.FallbackIntent')
+def help_intent_handler(handler_input):
+    return help_message_response(handler_input)
+
 @sb.exception_handler(can_handle_func=lambda _i, _e: True)
 def global_exception_handler(handler_input, exception):
-    logger.warn('handler exception', exc_info=exception)
-    return help_intent_handler(handler_input)
+    logger.warning('handler exception', exc_info=exception)
+    return help_message_response(handler_input)
 
 @log_invocation
 def handler(event, context):

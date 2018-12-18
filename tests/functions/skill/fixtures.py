@@ -67,6 +67,10 @@ def did_answer_intent_correct() -> dict:
 def did_answer_intent_wrong() -> dict:
     return load_event('did_answer_wrong')
 
+@pytest.fixture
+def unhandled_intent() -> dict:
+    return load_event('unhandled_intent')
+
 @pytest.fixture(params=[launch_request,
                         session_ended_request,
                         did_select_operation_intent,

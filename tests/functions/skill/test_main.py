@@ -8,7 +8,7 @@ from .fixtures import ( # pylint: disable=unused-import
     dynamodb_client, launch_request, session_ended_request,
     did_select_operation_intent, did_select_difficulty_intent,
     did_answer_intent_correct, did_answer_intent_wrong,
-    build_intent_event, locale
+    build_intent_event, unhandled_intent, locale
 )
 
 
@@ -123,3 +123,8 @@ def test_build_question_content(questions_count, locale):
 
     assert isinstance(question, str)
     assert isinstance(apl, RenderDocumentDirective)
+
+def test_response_with_help_message_on_exception(unhandled_intent):
+    r = main.sb.lambda_handler()(unhandled_intent, {})
+
+    assert isinstance(r, dict)
