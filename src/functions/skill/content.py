@@ -139,10 +139,11 @@ def apl_document():
     return \
     {'type': 'APL',
      'version': '1.0',
-     'import': [{'name': 'alexa-styles', 'version': '1.0.0'}],
+     'import': [{'name': 'alexa-styles', 'version': '1.0.0'},
+                {'name': 'alexa-viewport-profiles', 'version': '1.0.0'}],
      'mainTemplate': {
          'parameters': ['payload'],
-         'items': [
+         'item':
              {'type': 'Container',
               'alignItems': 'center',
               'justifyContent': 'center',
@@ -150,6 +151,6 @@ def apl_document():
               'width': '100vw',
               'items': [
                   {'type': 'Text',
-                   'fontSize': '@fontSizeXXLarge',
+                   'fontSize': '${@viewportProfile == @hubRoundSmall ? @fontSizeLarge : @fontSizeXXLarge}',
                    'fontWeight': '@fontWeightLight',
-                   'text': '${payload.op1} ${payload.operator} ${payload.op2}'}]}]}}
+                   'text': '${payload.op1} ${payload.operator} ${payload.op2}'}]}}}
