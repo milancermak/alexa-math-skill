@@ -69,9 +69,17 @@ def build_question(usage, locale):
     op1, op2, result = generate_ops(usage.session_data.operation,
                                     usage.session_data.difficulty)
     question = training_question(op1, op2, usage.session_data, locale)
-    apl_data = {'op1': op1,
+    apl_data = {
+        'data': {
+            'type': 'object',
+            'properties': {
+                'op1': op1,
                 'op2': op2,
-                'operand': usage.session_data.operation.as_symbol()}
+                'operand': usage.session_data.operation.as_symbol()
+            }
+        }
+    }
+
     apl = RenderDocumentDirective(document=apl_document(),
                                   datasources=apl_data)
 
@@ -153,4 +161,4 @@ def apl_document():
                   {'type': 'Text',
                    'fontSize': '${@viewportProfile == @hubRoundSmall ? @fontSizeLarge : @fontSizeXXLarge}',
                    'fontWeight': '@fontWeightLight',
-                   'text': '${payload.op1} ${payload.operator} ${payload.op2}'}]}}}
+                   'text': '${payload.data.properties.op1} ${payload.data.properties.operand} ${payload.data.properties.op2}'}]}}}
