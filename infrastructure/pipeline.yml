@@ -185,10 +185,10 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: CREATE_UPDATE
-                Capabilities: CAPABILITY_IAM
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
                 RoleArn: !GetAtt CloudformationRole.Arn
                 StackName: !Sub '${Service}-functions'
-                TemplatePath: BuildProdOutput::cfn_functions.json
+                TemplatePath: BuildProdOutput::packaged_functions.yml
                 ParameterOverrides: !Sub '{"Service": "${Service}", "Stage": "prod"}'
               InputArtifacts:
                 - Name: BuildProdOutput
